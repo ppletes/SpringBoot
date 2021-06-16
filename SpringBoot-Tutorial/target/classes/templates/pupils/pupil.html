@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Pupils</title>
+    <style>
+        input[type=text], select {
+            font-family: arial, sans-serif;
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .submit {
+            font-family: arial, sans-serif;
+            background-color: #dddddd;
+            color: black;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            width: 50%;
+        }
+
+        .submit:hover {
+            opacity: 0.8;
+        }
+
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+            text-align: center;
+        }
+
+        tr:nth-child(even) {
+            background-color: #dddddd;
+        }
+
+        form {
+            border: 3px solid #f1f1f1;
+            font-family: arial, sans-serif;
+            text-align: center;
+            align-items: center;
+        }
+    </style>
+    <script
+            src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js">
+    </script>
+    <script type="text/javascript">
+        function submitPupil() {
+            if (document.getElementById("firstName").value.length === 0) {
+                alert("First you need to write first name");
+                return false;
+            }else if(document.getElementById("lastName").value.length === 0){
+                alert("First you need to write last name");
+                return false;
+            }
+            return true;
+        }
+    </script>
+</head>
+<body>
+<form method="post" action="http://localhost:8080/pupils" onsubmit="return submitPupil();">
+    <input id="firstName" name="firstName" placeholder="First name" type="text" />
+    <input id="lastName" name="lastName" placeholder="Last name" type="text" />
+    <input class="submit" value="SUBMIT" type="submit" onClick="window.location.reload();"/>
+</form>
+<form method="get" action="http://localhost:8080/pupils/" >
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>First name</th>
+            <th>Last name</th>
+        </tr>
+        <tr th:each="p : ${pupils}">
+            <td th:text="${p.id}"></td>
+            <td th:text="${p.firstName}"></td>
+            <td th:text="${p.lastName}"></td>
+        </tr>
+    </table>
+</form>
+</body>
+</html>
