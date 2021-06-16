@@ -1,0 +1,203 @@
+<!DOCTYPE HTML>
+<html xmlns:score="http://thymeleafexamples" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>MoneyHeist Web Application</title>
+    <meta charset="UTF-8">
+    <style>
+        .clickHere {
+            font-family: arial, sans-serif;
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        a {
+            color: blue;
+        }
+
+        a:hover {
+            color: darkred;
+        }
+
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #dddddd;
+        }
+
+        form {
+            border: 3px solid #f1f1f1;
+            font-family: arial, sans-serif;
+        }
+
+        /* Full-width inputs */
+        input[type=text], select {
+            font-family: arial, sans-serif;
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+
+        pre, p, a {
+            font-family: arial, sans-serif;
+        }
+
+        .update {
+            font-family: arial, sans-serif;
+            background-color: #dddddd;
+            color: black;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            width: 30%;
+        }
+
+        .update:hover {
+            opacity: 0.8;
+        }
+    </style>
+    <script
+            src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js">
+    </script>
+    <script type="text/javascript">
+        function checkPost() {
+            if (document.getElementById("heist_id").value.length === 0) {
+                alert("ID nevažeći");
+                return false;
+            }
+
+            var form = document.getElementById("formUpdate");
+            form.action = 'http://localhost:8080/heist/' + document.getElementById("heist_id").value + '/skills';
+
+            return saveSkill();
+        }
+
+        function saveSkill() {
+            var skills = document.getElementById('skills').value;
+            var s = skills.split(" ");
+            $.ajax({
+                url: "http://localhost:8080/heist/" + document.getElementById("heist_id").value + "/skills",
+                type: "PATCH", contentType: "application/json",
+                dataType: "json",
+                data: JSON.stringify(
+                    {
+                        "skills": [
+                            {
+                                "name": s[0],
+                                "level": s[1],
+                                "members": s[2]
+                            },
+                            {
+                                "name": s[3],
+                                "level": s[4],
+                                "members": s[5]
+                            }
+                        ]
+                    }),
+            });
+        }
+
+        function checkMember() {
+            var form = document.getElementById("formMem");
+            form.action = 'http://localhost:8080/heist/' + document.getElementById('heist_id2').value + '/members';
+            form.submit()
+            return true;
+        }
+
+        function checkEligMember() {
+            var form = document.getElementById("formEligMem");
+            form.action = 'http://localhost:8080/heist/' + document.getElementById('heist_id3').value + '/eligible_members';
+            form.submit()
+            return true;
+        }
+
+        function checkStart() {
+            var form = document.getElementById("formStart");
+            form.action = 'http://localhost:8080/heist/' + document.getElementById('heist_id4').value + '/start';
+            form.submit()
+            return true;
+        }
+
+        function checkPostStart() {
+            if (document.getElementById("heist_id").value.length === 0) {
+                alert("ID nevažeći");
+                return false;
+            }
+            return saveStart();
+        }
+
+        function saveStart() {
+            $.ajax({
+                url: "http://localhost:8080/heist/" + document.getElementById("heist_id").value + "/start",
+                type: "PUT", contentType: "application/json",
+                dataType: "json",
+                data: JSON.stringify({}),
+            });
+        }
+    </script>
+</head>
+<body>
+<p class="clickHere"><a href="/heist">Click here</a> to get back. Changes can be visible after refreshing page.</p>
+<br><br>
+<form id="formUpdate" name="formUpdate" onsubmit="return checkPost();">
+    <input id="heist_id" name="heist_id" th:value="${heist_id}" type="hidden"/>
+    <input class="update" id="update" name="update" type="submit" value="UPDATE"/>
+    <div>
+        <script type="text/javascript">
+            function showDiv2() {
+                document.getElementById('skillsBlock2').style.display = "block";
+            }
+        </script>
+        <label>Skills:</label><input name="answer2" onclick="showDiv2()" type="button" value="+"/>
+        <div class="answer_list2" id="skillsBlock2" name="skillsBlock2" style="display:none;">
+            <input id="skills" name="skills" placeholder="npr. combat *** 5 driving ** 1" type="text"/>
+        </div>
+    </div>
+    <br>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Skills</th>
+        </tr>
+        <tr>
+            <td th:text="${heist_id}"></td>
+            <td>
+            <pre th:each="s : ${heistSkillsById}">
+                <input th:value="${s.name}+' '+${s.level}+' '+${s.members}"/>
+            </pre>
+            </td>
+        </tr>
+    </table>
+</form>
+<form id="formMem" method="get" name="formMem" onsubmit="return checkMember();">
+    <input id="heist_id2" name="heist_id2" th:value="${heist_id}" type="hidden"/>
+    <input class="update" id="members" name="members" type="submit" value="MEMBERS"/>
+</form>
+<form id="formEligMem" method="get" name="formEligMem" onsubmit="return checkEligMember();">
+    <input id="heist_id3" name="heist_id3" th:value="${heist_id}" type="hidden"/>
+    <input class="update" id="eligMembers" name="eligMembers" type="submit" value="ELIGIBLE MEMBERS"/>
+</form>
+<form id="formStart" name="formStart" onsubmit="return checkPostStart();">
+    <input id="heist_id4" name="heist_id4" th:value="${heist_id}" type="hidden"/>
+    <input class="update" id="startHeist" name="startHeist" type="submit" value="START"/>
+</form>
+</body>
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE HTML>
+<html xmlns:score="http://thymeleafexamples" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>MoneyHeist Web Application</title>
+    <meta charset="UTF-8">
+    <style>
+        .clickHere {
+            font-family: arial, sans-serif;
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        a {
+            color: blue;
+        }
+
+        a:hover {
+            color: darkred;
+        }
+
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #dddddd;
+        }
+
+        form {
+            border: 3px solid #f1f1f1;
+            font-family: arial, sans-serif;
+        }
+
+        /* Full-width inputs */
+        input[type=text], select {
+            font-family: arial, sans-serif;
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+
+        .submit {
+            font-family: arial, sans-serif;
+            background-color: #dddddd;
+            color: black;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .submit:hover {
+            opacity: 0.8;
+        }
+
+        pre, p, a {
+            font-family: arial, sans-serif;
+        }
+
+        .update {
+            font-family: arial, sans-serif;
+            background-color: #dddddd;
+            color: black;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            width: 30%;
+        }
+
+        .update:hover {
+            opacity: 0.8;
+        }
+    </style>
+    <script
+            src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js">
+    </script>
+    <script type="text/javascript">
+        function checkPost() {
+            var skills = document.getElementById('skills').value;
+            var res = skills.split(" ");
+            if (document.getElementById("name").value.length === 0
+                || document.getElementById("location").value.length === 0
+                || document.getElementById("startTime").value.length === 0
+                || document.getElementById("skills").value.length === 0
+                || document.getElementById("endTime").value.length === 0) {
+                alert("Niste ispunili sve podatke");
+                return false;
+            }
+            return saveAsNewHeist();
+        }
+
+        function checkChange() {
+            if (document.getElementById("heist_id").value.length === 0) {
+                alert("Niste unijeli broj u polje Heist ID");
+                return false;
+            }
+
+            var form = document.getElementById("formUp");
+            form.action = 'http://localhost:8080/heist/' + document.getElementById("heist_id").value + '/skills';
+            form.submit()
+            return true;
+        }
+
+        function saveAsNewHeist() {
+            var name = document.getElementById('name').value;
+            var location = document.getElementById('location').value;
+            var startTime = document.getElementById('startTime').value;
+            var endTime = document.getElementById('endTime').value;
+            var skills = document.getElementById('skills').value;
+            var res = skills.split(" ");
+            $.ajax({
+                url: "http://localhost:8080/heist/",
+                type: "POST", contentType: "application/json",
+                dataType: "json",
+                data: JSON.stringify({
+                    name: name,
+                    location: location,
+                    startTime: startTime,
+                    endTime: endTime,
+                    skills: [
+                        {
+                            "name": res[0],
+                            "level": res[1],
+                            "members": res[2]
+                        },
+                        {
+                            "name": res[3],
+                            "level": res[4],
+                            "members": res[5]
+                        }
+                    ]
+                }),
+            });
+        }
+    </script>
+</head>
+<body>
+<p class="clickHere"><a href="/">Click here</a> to get back. Changes can be visible after refreshing page.</p>
+<br><br>
+<form onsubmit="return checkPost();">
+    <div>
+        <label>Name:</label>
+        <input id="name" name="name" type="text"/>
+    </div>
+    <div>
+        <label>Location:</label>
+        <input id="location" name="location" type="text"/>
+    </div>
+    <div>
+        <label>StartTime:</label>
+        <input id="startTime" name="startTime" type="text"/>
+    </div>
+    <div>
+        <label>EndTime:</label>
+        <input id="endTime" name="endTime" type="text"/>
+    </div>
+    <div>
+        <label>Skills:</label>
+        <input id="skills" name="skills" placeholder="npr. combat ** 1 driving * 5" type="text"/>
+    </div>
+    <br>
+    <input class="submit" type="submit" value="SUBMIT"/>
+</form>
+<br><br>
+<br><br>
+<form id="formUp" method="get" name="formUp"
+      onsubmit="return checkChange();">
+    <input class="update" id="update" onClick="window.location.reload();" type="submit" value="CHANGE"/>
+    <input id="heist_id" name="heist_id" placeholder="Heist ID" type="text"/>
+    <br>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Location</th>
+            <th>StartTime</th>
+            <th>EndTime</th>
+            <th>Status</th>
+            <th>Skills</th>
+        </tr>
+        <tr th:each="m : ${heist}">
+            <td th:text="${m.id}"></td>
+            <td th:text="${m.name}"></td>
+            <td th:text="${m.location}"></td>
+            <td th:text="${m.startTime}"></td>
+            <td th:text="${m.endTime}"></td>
+            <td th:text="${m.status}"></td>
+            <td>
+            <pre th:each="s : ${m.skills}">
+                <input th:value="${s.name}+' '+${s.level}+' '+${s.members}"/>
+            </pre>
+            </td>
+        </tr>
+    </table>
+</form>
+</body>
+</html>

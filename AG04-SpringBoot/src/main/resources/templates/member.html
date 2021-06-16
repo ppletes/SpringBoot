@@ -1,0 +1,228 @@
+<!DOCTYPE HTML>
+<html xmlns:score="http://thymeleafexamples" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>MoneyHeist Web Application</title>
+    <meta charset="UTF-8">
+    <style>
+        .clickHere {
+            font-family: arial, sans-serif;
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        a {
+            color: blue;
+        }
+
+        a:hover {
+            color: darkred;
+        }
+
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #dddddd;
+        }
+
+        form {
+            border: 3px solid #f1f1f1;
+            font-family: arial, sans-serif;
+        }
+
+        /* Full-width inputs */
+        input[type=text], select {
+            font-family: arial, sans-serif;
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+
+        .submit {
+            font-family: arial, sans-serif;
+            background-color: #dddddd;
+            color: black;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .submit:hover {
+            opacity: 0.8;
+        }
+
+        pre, p, a {
+            font-family: arial, sans-serif;
+        }
+
+        .update {
+            font-family: arial, sans-serif;
+            background-color: #dddddd;
+            color: black;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            width: 30%;
+        }
+
+        .update:hover {
+            opacity: 0.8;
+        }
+    </style>
+    <script
+            src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js">
+    </script>
+    <script type="text/javascript">
+        function checkPost() {
+            var skills = document.getElementById('skills').value;
+            var res = skills.split(" ");
+            var cars = [res[0], res[2]];
+            if (document.getElementById("name").value.length === 0
+                || document.getElementById("email").value.length === 0
+                || document.getElementById("sex").value.length === 0
+                || document.getElementById("skills").value.length === 0
+                || document.getElementById("mainSkill").value.length === 0) {
+                alert("Niste ispunili sve podatke");
+                return false;
+            }
+            if (cars.includes(document.getElementById("mainSkill").value) === false) {
+                alert("Main skill mora biti jedan od unesenih skilleva");
+                return false;
+            }
+            return saveAsNewMember();
+        }
+
+        function checkChange() {
+            if (document.getElementById("member_id").value.length === 0) {
+                alert("Niste unijeli broj u polje Member ID");
+                return false;
+            }
+
+            var form = document.getElementById("formUp");
+            form.action = 'http://localhost:8080/member/' + document.getElementById("member_id").value + '/skills';
+            form.submit()
+            return true;
+        }
+
+        function saveAsNewMember() {
+            var name = document.getElementById('name').value;
+            var sex = document.getElementById('sex').value;
+            var email = document.getElementById('email').value;
+            var status = document.getElementById('status').value;
+            var mainSkill = document.getElementById('mainSkill').value;
+            var skills = document.getElementById('skills').value;
+            var res = skills.split(" ");
+            $.ajax({
+                url: "http://localhost:8080/member/",
+                type: "POST", contentType: "application/json",
+                dataType: "json",
+                data: JSON.stringify({
+                    name: name,
+                    sex: sex,
+                    email: email,
+                    skills: [
+                        {
+                            "name": res[0],
+                            "level": res[1]
+                        },
+                        {
+                            "name": res[2],
+                            "level": res[3]
+                        }
+                    ],
+                    mainSkill: mainSkill,
+                    status: status
+                }),
+            });
+        }
+    </script>
+</head>
+<body>
+<p class="clickHere"><a href="/">Click here</a> to get back. Changes can be visible after refreshing page.</p>
+<br><br>
+<form onsubmit="return checkPost();">
+    <div>
+        <label>Name:</label>
+        <input id="name" name="name" type="text"/>
+    </div>
+    <div>
+        <label>Sex:</label>
+        <input id="sex" name="sex" type="text"/>
+    </div>
+    <div>
+        <label>Email:</label>
+        <input id="email" name="email" type="text"/>
+    </div>
+    <div>
+        <label>Skills:</label>
+        <input id="skills" name="skills" placeholder="npr. combat ** driving *" type="text"/>
+    </div>
+    <div>
+        <label>MainSkill:</label>
+        <input id="mainSkill" name="mainSkill" type="text"/>
+    </div>
+    <div>
+        <label>Status:</label>
+        <select id="status" name="status">
+            <option value="AVAILABLE">AVAILABLE</option>
+            <option value="EXPIRED">EXPIRED</option>
+            <option value="INCARCERATED">INCARCERATED</option>
+            <option value="RETIRED">RETIRED</option>
+        </select>
+    </div>
+    <br>
+    <input class="submit" type="submit" value="SUBMIT"/>
+</form>
+<br><br>
+<form id="formUp" method="get" name="formUp"
+      onsubmit="return checkChange();">
+    <input class="update" id="update" onClick="window.location.reload();" type="submit" value="CHANGE"/>
+    <input id="member_id" name="member_id" placeholder="Member ID" type="text"/>
+    <br>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Sex</th>
+            <th>Email</th>
+            <th>MainSkill</th>
+            <th>Status</th>
+            <th>Skills</th>
+        </tr>
+        <tr th:each="m : ${memberList}">
+            <td th:text="${m.id}"></td>
+            <td th:text="${m.name}"></td>
+            <td th:text="${m.sex}"></td>
+            <td th:text="${m.email}"></td>
+            <td th:text="${m.mainSkill}"></td>
+            <td th:text="${m.status}"></td>
+            <td>
+            <pre th:each="s : ${m.skills}">
+                <input th:value="${s.name}+' '+${s.level}"/>
+            </pre>
+            </td>
+        </tr>
+    </table>
+</form>
+</body>
+</html>

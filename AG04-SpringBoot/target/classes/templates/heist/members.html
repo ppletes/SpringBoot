@@ -1,0 +1,143 @@
+<!DOCTYPE HTML>
+<html xmlns:score="http://thymeleafexamples" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>MoneyHeist Web Application</title>
+    <meta charset="UTF-8">
+    <style>
+        .clickHere {
+            font-family: arial, sans-serif;
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        a {
+            color: blue;
+        }
+
+        a:hover {
+            color: darkred;
+        }
+
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #dddddd;
+        }
+
+        form {
+            border: 3px solid #f1f1f1;
+            font-family: arial, sans-serif;
+        }
+
+        /* Full-width inputs */
+        input[type=text], select {
+            font-family: arial, sans-serif;
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+
+        pre, p, a {
+            font-family: arial, sans-serif;
+        }
+
+        .update {
+            font-family: arial, sans-serif;
+            background-color: #dddddd;
+            color: black;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            width: 30%;
+        }
+
+        .update:hover {
+            opacity: 0.8;
+        }
+    </style>
+    <script
+            src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js">
+    </script>
+    <script type="text/javascript">
+        function f1() {
+            document.getElementById("back").href = "/heist/" + document.getElementById("heist_id2").value + "/skills";
+        }
+
+        function checkUpdate() {
+            if (document.getElementById("member").value.length === 0) {
+                alert("Niste ispunili sve podatke");
+                return false;
+            }
+            return saveAsNewMember();
+        }
+
+        function saveAsNewMember() {
+            var member = document.getElementById('member').value;
+            var heist_id2 = document.getElementById('heist_id2').value;
+            $.ajax({
+                url: "http://localhost:8080/heist/" + heist_id2 + "/members",
+                type: "PUT", contentType: "application/json",
+                dataType: "json",
+                data: JSON.stringify({
+                    members: [member]
+                }),
+            });
+        }
+    </script>
+</head>
+<body>
+<p class="clickHere"><a href="#" onclick="return f1();" id="back">Click here</a> to get back. Changes can be visible after refreshing page.</p>
+<br><br>
+<form onsubmit="return checkUpdate();">
+    <input class="update" id="update2" name="update2" type="submit" value="UPDATE"/>
+    <input id="heist_id2" name="heist_id2" th:value="${heist_id}" type="hidden"/>
+    <div>
+        <script type="text/javascript">
+            function showDiv3() {
+                document.getElementById('skillsBlock3').style.display = "block";
+            }
+        </script>
+        <label>Members:</label><input name="answer2" onclick="showDiv3()" type="button" value="+"/>
+        <div class="answer_list2" id="skillsBlock3" name="skillsBlock2" style="display:none;">
+            <input id="member" name="member" placeholder="npr. Paula, Ivan, Marko" type="text"/>
+        </div>
+    </div>
+    <br>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Skills</th>
+        </tr>
+        <tr th:each="s : ${heistMember}">
+            <td>
+                <input th:value="${s.name}"/>
+            </td>
+            <td>
+            <pre th:each="d : ${s.skills}">
+                <input th:value="${d.name}+' '+${d.level}"/>
+            </pre>
+            </td>
+        </tr>
+    </table>
+</form>
+</body>
+</html>
